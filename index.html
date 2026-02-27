@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tan Development | Nashville Real Estate Development</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -657,6 +658,7 @@
             <label for="message">Message *</label>
             <textarea id="message" name="message" required placeholder="Tell us about your project or inquiry..."></textarea>
           </div>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAACjXb5OVdkjNRX0V" data-theme="light" style="margin-bottom:16px;"></div>
           <button type="submit" class="form-submit" id="submitBtn">Send Message</button>
         </form>
       </div>
@@ -707,28 +709,45 @@
   }
 
   // ── Google Sheets Form ──
-  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxu6tRV1YGsqspdd1CdmnoZ5ChnP3pNZUMg8TVt_CLuwXUGWXAujQID11jxeJo47Ra0lw/exec';
+  const WORKER_URL = 'https://solitary-violet-297c.aistrategyus.workers.dev';
 
   document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
+
+    // Get Turnstile token
+    const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+    if (!turnstileToken) {
+      alert('Please complete the CAPTCHA verification.');
+      return;
+    }
+
     btn.textContent = 'Sending...';
     btn.disabled = true;
+
     const formData = {
-      timestamp: new Date().toLocaleString(),
-      name:      document.getElementById('name').value,
-      phone:     document.getElementById('phone').value,
-      email:     document.getElementById('email').value,
-      message:   document.getElementById('message').value
+      name:           document.getElementById('name').value,
+      phone:          document.getElementById('phone').value,
+      email:          document.getElementById('email').value,
+      message:        document.getElementById('message').value,
+      turnstileToken: turnstileToken
     };
+
     try {
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST', mode: 'no-cors',
+      const response = await fetch(WORKER_URL, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      document.getElementById('contactForm').style.display = 'none';
-      document.getElementById('formSuccess').style.display = 'block';
+
+      const result = await response.json();
+
+      if (response.ok && result.result === 'success') {
+        document.getElementById('contactForm').style.display = 'none';
+        document.getElementById('formSuccess').style.display = 'block';
+      } else {
+        throw new Error(result.error || 'Submission failed');
+      }
     } catch(err) {
       btn.textContent = 'Send Message';
       btn.disabled = false;
