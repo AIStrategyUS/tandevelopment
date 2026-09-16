@@ -26,23 +26,28 @@ const featuredB = findProject('3829-edwards');
 const processSteps = [
   {
     number: '01',
-    title: 'Land & Design',
-    line: 'We help find the right lot and shape the plan around it.',
+    title: 'Site Sourcing & Due Diligence',
+    line: 'We evaluate the land and run the numbers before we commit.',
   },
   {
     number: '02',
-    title: 'Pre-Construction',
-    line: 'Permitting, budget, and material selections, settled before we break ground.',
+    title: 'Entitlement & Design',
+    line: 'Architects and permits shape the plan before we build it.',
   },
   {
     number: '03',
-    title: 'Build',
-    line: 'Framing through finish work, built the way we would build our own home.',
+    title: 'Capital & Structuring',
+    line: 'Budget locked, financing structured, partners brought in where it fits.',
   },
   {
     number: '04',
+    title: 'Construction Oversight',
+    line: 'We manage the build to the underwriting, not just the blueprint.',
+  },
+  {
+    number: '05',
     title: 'Delivery',
-    line: 'A final walkthrough, then the keys are yours.',
+    line: 'Final walkthrough, then keys or closing, on schedule.',
   },
 ];
 
@@ -61,8 +66,8 @@ const jsonLd = {
 ---
 
 <Layout
-  title="Tan Development | Custom Home Builder in Nashville, TN"
-  description="Tan Development builds custom homes in Nashville neighborhoods. See our recent work, how we build, and homes currently available with our partner Carletello & Co."
+  title="Tan Development | Real Estate Development in Nashville, TN"
+  description="Tan Development is a Nashville real estate development company handling site acquisition, due diligence, entitlement, capital, and construction. See our projects, our process, and homes currently available with our partner Carletello & Co."
   canonicalPath="/"
 >
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
@@ -81,10 +86,10 @@ const jsonLd = {
     <div class="hero__scrim" aria-hidden="true"></div>
 
     <div class="hero__content wrap">
-      <h1 class="hero__headline">Custom homes, built to last in Nashville.</h1>
+      <h1 class="hero__headline">We find the land. We run the numbers.</h1>
       <p class="hero__subline">
-        We build in Nashville neighborhoods, from first sketch to final walkthrough, with an eye for craft in
-        every room.
+        Tan Development is a Nashville real estate development company, from site selection and due diligence
+        through capital and construction.
       </p>
       <a href="/portfolio/" class="hero__cta">View Our Portfolio</a>
     </div>
@@ -96,7 +101,7 @@ const jsonLd = {
   <section class="section featured">
     <div class="wrap">
       <p class="kicker fade-up">Featured Work</p>
-      <h2 class="fade-up">A Look at Recent Builds</h2>
+      <h2 class="fade-up">A Look at Recent Projects</h2>
 
       <div class="featured-grid">
         <div class="featured-grid__item featured-grid__item--large fade-up">
@@ -118,10 +123,10 @@ const jsonLd = {
   <section class="section positioning">
     <div class="text-wrap fade-up">
       <p class="positioning__lede">
-        We build for homeowners who want a house that works as hard as they do, with room to grow and details
-        that hold up over time. Every home gets the same attention, solid materials, tight joinery, and finish
-        work we would want in our own house. Sebastian Tan leads each project from the first sketch through the
-        final walkthrough, so nothing gets lost between the plan and the build.
+        We look for land with real potential, run the numbers before we commit, and bring in the right
+        architects, designers, and capital partners to get it built right. Sebastian Tan leads every project
+        personally, from the first offer through the closing, so nothing gets lost between the underwriting and
+        the finished result.
       </p>
     </div>
   </section>
@@ -132,7 +137,7 @@ const jsonLd = {
   <section class="section process">
     <div class="wrap">
       <p class="kicker fade-up">Our Process</p>
-      <h2 class="fade-up">How We Build</h2>
+      <h2 class="fade-up">From Site to Delivery</h2>
 
       <ol class="process-band fade-up">
         {processSteps.map((step) => (
@@ -174,8 +179,8 @@ const jsonLd = {
   =================================================================== -->
   <section class="section closing">
     <div class="text-wrap closing__inner fade-up">
-      <h2>Ready to build?</h2>
-      <p>Tell us about your lot and what you have in mind, and we will follow up to set up a time to talk.</p>
+      <h2>Have a Project in Mind?</h2>
+      <p>Tell us about the land, the deal, or the opportunity, and we will follow up to talk through the numbers.</p>
       <a href="/contact/" class="btn-primary">Get in Touch</a>
     </div>
   </section>
@@ -340,7 +345,7 @@ const jsonLd = {
   .process-band {
     margin-top: clamp(32px, 5vw, 56px);
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .process-step {
@@ -387,6 +392,16 @@ const jsonLd = {
     font-size: 0.875rem;
     line-height: 1.6;
     color: var(--color-text-muted);
+  }
+
+  @media (max-width: 960px) {
+    .process-band {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .process-step:nth-child(odd) {
+      border-left: none;
+    }
   }
 
   @media (max-width: 720px) {
