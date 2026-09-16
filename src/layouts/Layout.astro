@@ -9,7 +9,8 @@
 //     slash, e.g. "/portfolio/" or "/" for home. Resolved against
 //     astro.config.mjs's `site` to build the canonical URL and og:url.
 //   ogImage (string, optional): site relative path to an image, defaults
-//     to the dark logo mark PNG. Resolved the same way as canonicalPath.
+//     to the 1200x630 branded social share image. Resolved the same way
+//     as canonicalPath.
 //   includeTurnstile (boolean, optional): when true, adds the Cloudflare
 //     Turnstile script tag to <head> (only on pages that need it, such as
 //     the contact page's form).
@@ -35,7 +36,7 @@ const {
   title,
   description,
   canonicalPath,
-  ogImage = '/images/logo-mark-dark.png',
+  ogImage = '/images/og-image.png',
   includeTurnstile = false,
 } = Astro.props;
 
@@ -55,10 +56,13 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:url" content={canonicalURL} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageURL} />
 
-    <link rel="icon" type="image/png" href="/images/logo-mark-dark.png" />
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
 
     {includeTurnstile && (
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
