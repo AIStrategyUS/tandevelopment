@@ -1,0 +1,198 @@
+---
+// Reusable project card, shared by the home page's featured grid and the
+// full portfolio grid.
+//
+// Pass either a content-collection entry via `project`, or the explicit
+// fields directly (image/imageAlt/name/neighborhood/status/sqft/beds/baths/
+// href). Explicit props win over `project` field-by-field, so a caller can
+// pass `project` for convenience and override just one or two fields.
+//
+// Sq ft and bed/bath only reveal on hover/focus for pointer users (CSS
+// only, see .project-card__meta below); they stay visible without hover on
+// touch devices (`@media (hover: none)`) and remain in the accessibility
+// tree at all times for assistive tech, since opacity:0 content is still
+// announced.
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project?: CollectionEntry<'projects'>;
+  name?: string;
+  neighborhood?: string;
+  status?: 'Sold' | 'Available' | 'Under Construction';
+  sqft?: number;
+  beds?: number;
+  baths?: number;
+  image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  href?: string;
+}
+
+const props = Astro.props;
+const data = props.project?.data;
+
+const name = props.name ?? data?.name ?? '';
+const neighborhood = props.neighborhood ?? data?.neighborhood ?? '';
+const status = props.status ?? data?.status ?? 'Available';
+const sqft = props.sqft ?? data?.sqft;
+const beds = props.beds ?? data?.beds;
+const baths = props.baths ?? data?.baths;
+const image = props.image ?? data?.heroImage ?? '';
+const imageAlt = props.imageAlt ?? data?.heroImageAlt ?? name;
+const imageWidth = props.imageWidth ?? 800;
+const imageHeight = props.imageHeight ?? 600;
+const href = props.href ?? (data ? `/portfolio/${data.slug}/` : '#');
+
+const statusSlug = status.toLowerCase().replace(/\s+/g, '-');
+const hasMeta = Boolean(sqft || (beds && baths));
+---
+
+<article class="project-card">
+  <a href={href} class="project-card__link">
+    <div class="project-card__media">
+      <img
+        src={image}
+        alt={imageAlt}
+        width={imageWidth}
+        height={imageHeight}
+        loading="lazy"
+        class="project-card__image"
+      />
+      {hasMeta && (
+        <div class="project-card__meta">
+          {sqft && <span>{sqft.toLocaleString()} sq ft</span>}
+          {beds && baths && <span>{beds} bed / {baths} bath</span>}
+        </div>
+      )}
+    </div>
+
+    <div class="project-card__body">
+      <div class="project-card__heading">
+        <h3 class="project-card__name">{name}</h3>
+        <span class={`project-card__tag project-card__tag--${statusSlug}`}>{status}</span>
+      </div>
+      <p class="project-card__neighborhood">{neighborhood}</p>
+    </div>
+  </a>
+</article>
+
+<style>
+  .project-card__link {
+    display: block;
+    color: inherit;
+  }
+
+  .project-card__media {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-bg-alt);
+  }
+
+  .project-card__image {
+    width: 100%;
+    height: auto;
+    transition: transform 0.5s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card__image {
+      transition: none;
+    }
+  }
+
+  .project-card__link:hover .project-card__image,
+  .project-card__link:focus-visible .project-card__image {
+    transform: scale(1.04);
+  }
+
+  .project-card__meta {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    gap: 16px;
+    padding: 14px 18px;
+    background: linear-gradient(to top, rgba(21, 17, 12, 0.75), transparent);
+    color: var(--color-text-on-dark);
+    font-size: 0.8125rem;
+    letter-spacing: 0.01em;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+  }
+
+  .project-card__link:hover .project-card__meta,
+  .project-card__link:focus-within .project-card__meta {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card__meta {
+      transition: none;
+    }
+  }
+
+  /* Touch devices have no hover state, so keep the meta row visible and
+     laid out normally instead of overlaid. */
+  @media (hover: none) {
+    .project-card__meta {
+      position: static;
+      opacity: 1;
+      transform: none;
+      background: none;
+      color: var(--color-text-muted);
+      padding: 10px 0 0;
+    }
+  }
+
+  .project-card__body {
+    padding-top: 16px;
+  }
+
+  .project-card__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .project-card__name {
+    font-size: 1.125rem;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+
+  .project-card__neighborhood {
+    margin-top: 4px;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .project-card__tag {
+    flex-shrink: 0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .project-card__tag--available {
+    background: rgba(156, 122, 84, 0.14);
+    color: var(--color-accent-dark);
+  }
+
+  .project-card__tag--sold {
+    background: rgba(21, 17, 12, 0.08);
+    color: var(--color-text-muted);
+  }
+
+  .project-card__tag--under-construction {
+    background: rgba(156, 122, 84, 0.3);
+    color: var(--color-ink);
+  }
+</style>

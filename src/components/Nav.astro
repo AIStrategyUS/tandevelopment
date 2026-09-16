@@ -1,0 +1,260 @@
+---
+// Site navigation. Transparent over the hero on load, becomes a solid
+// --color-ink bar once the page scrolls past a small threshold (handled by
+// the inline script below). Text stays --color-text-on-dark in both states,
+// so it must only ever sit over dark imagery or the solid dark bar.
+//
+// Mobile (<= 860px) swaps the inline links for a hamburger button that
+// opens a full-screen overlay menu; open/close/focus-trap/Escape logic
+// lives in src/scripts/mobile-menu.js.
+import logoFullRaw from '../assets/logo-full.svg?raw';
+
+const links = [
+  { href: '/portfolio/', label: 'Portfolio' },
+  { href: '/process/', label: 'Process' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Contact' },
+];
+
+const phoneDisplay = '574-870-6947';
+const phoneHref = 'tel:+15748706947';
+const availableHomesUrl = 'https://www.carletelloandco.com/properties/sale';
+---
+
+<nav class="nav" data-nav>
+  <div class="nav__inner wrap">
+    <a href="/" class="nav__logo" aria-label="Tan Development, home">
+      <Fragment set:html={logoFullRaw} />
+    </a>
+
+    <div class="nav__links">
+      <ul class="nav__list">
+        {links.map((link) => (
+          <li><a href={link.href} class="nav__link">{link.label}</a></li>
+        ))}
+      </ul>
+      <a href={phoneHref} class="nav__phone">{phoneDisplay}</a>
+      <a href={availableHomesUrl} target="_blank" rel="noopener" class="nav__available">Available Homes</a>
+    </div>
+
+    <button
+      type="button"
+      class="nav__toggle"
+      id="nav-toggle"
+      aria-expanded="false"
+      aria-controls="nav-overlay"
+    >
+      <span class="nav__toggle-bar" aria-hidden="true"></span>
+      <span class="nav__toggle-bar" aria-hidden="true"></span>
+      <span class="nav__toggle-bar" aria-hidden="true"></span>
+      <span class="visually-hidden">Open menu</span>
+    </button>
+  </div>
+
+  <div class="nav-overlay" id="nav-overlay" hidden>
+    <button type="button" class="nav-overlay__close" id="nav-close" aria-label="Close menu">
+      <span aria-hidden="true">&times;</span>
+    </button>
+
+    <ul class="nav-overlay__list">
+      {links.map((link) => (
+        <li><a href={link.href} class="nav-overlay__link" data-nav-link>{link.label}</a></li>
+      ))}
+    </ul>
+
+    <div class="nav-overlay__meta">
+      <a href={phoneHref} class="nav-overlay__meta-link" data-nav-link>{phoneDisplay}</a>
+      <a href={availableHomesUrl} target="_blank" rel="noopener" class="nav-overlay__meta-link" data-nav-link>
+        Available Homes
+      </a>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .nav {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 100;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .nav--solid {
+    background: var(--color-ink);
+    border-bottom-color: var(--color-border-dark);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav {
+      transition: none;
+    }
+  }
+
+  .nav__inner {
+    height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .nav__logo {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text-on-dark);
+    flex-shrink: 0;
+  }
+
+  .nav__logo :global(svg) {
+    height: 46px;
+    width: auto;
+    display: block;
+  }
+
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .nav__link,
+  .nav__phone,
+  .nav__available {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--color-text-on-dark);
+  }
+
+  .nav__link {
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav__link:hover {
+    opacity: 1;
+  }
+
+  .nav__available {
+    opacity: 0.7;
+  }
+
+  .nav__toggle {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px;
+    margin-right: -10px;
+  }
+
+  .nav__toggle-bar {
+    width: 22px;
+    height: 2px;
+    background: var(--color-text-on-dark);
+  }
+
+  @media (max-width: 860px) {
+    .nav__links {
+      display: none;
+    }
+
+    .nav__toggle {
+      display: flex;
+    }
+  }
+
+  .nav-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--color-ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 24px;
+  }
+
+  .nav-overlay[hidden] {
+    display: none;
+  }
+
+  .nav-overlay__close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--color-text-on-dark);
+  }
+
+  .nav-overlay__list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .nav-overlay__link {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--color-text-on-dark);
+    padding: 10px;
+  }
+
+  .nav-overlay__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-overlay__meta-link {
+    font-size: 0.9375rem;
+    color: var(--color-text-on-dark-muted);
+    padding: 10px;
+  }
+</style>
+
+<script>
+  import { initMobileMenu } from '../scripts/mobile-menu.js';
+
+  const nav = document.querySelector('[data-nav]');
+  const SCROLL_THRESHOLD = 40;
+
+  function updateNavState() {
+    if (!nav) return;
+    if (window.scrollY > SCROLL_THRESHOLD) {
+      nav.classList.add('nav--solid');
+    } else {
+      nav.classList.remove('nav--solid');
+    }
+  }
+
+  updateNavState();
+  window.addEventListener('scroll', updateNavState, { passive: true });
+
+  initMobileMenu({
+    toggle: '#nav-toggle',
+    overlay: '#nav-overlay',
+    close: '#nav-close',
+    linkSelector: '[data-nav-link]',
+  });
+</script>

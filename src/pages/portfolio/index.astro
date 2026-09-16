@@ -1,0 +1,177 @@
+---
+// Portfolio grid: every project in the content collection, filterable by
+// status. Filtering is a plain client-side data-attribute toggle (see the
+// inline script tag at the bottom of this file) so it works with zero
+// server round-trips and no hash-routing complexity.
+import Layout from '../../layouts/Layout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) =>
+    (a.data.order ?? 999) - (b.data.order ?? 999) ||
+    a.data.name.localeCompare(b.data.name)
+);
+
+const filters = [
+  { key: 'all', label: 'All' },
+  { key: 'available', label: 'Available' },
+  { key: 'sold', label: 'Sold' },
+  { key: 'under-construction', label: 'Under Construction' },
+];
+---
+
+<Layout
+  title="Portfolio | Tan Development"
+  description="Nashville homes we've built and are building now, from 12 South to Belle Meade. Browse available, sold, and under construction projects."
+  canonicalPath="/portfolio/"
+>
+  <section class="page-header">
+    <div class="wrap">
+      <h1 class="fade-up">Portfolio</h1>
+      <p class="page-header__intro fade-up">
+        Every home on this list was built by our own crew, start to finish. Some are sold, some are
+        under construction, and a few are ready to walk through now.
+      </p>
+    </div>
+  </section>
+
+  <section class="portfolio-filter wrap">
+    <div class="portfolio-filter__group" role="group" aria-label="Filter projects by status">
+      {filters.map((f, i) => (
+        <button
+          type="button"
+          class="portfolio-filter__btn"
+          data-filter={f.key}
+          aria-pressed={i === 0 ? 'true' : 'false'}
+        >
+          {f.label}
+        </button>
+      ))}
+    </div>
+    <p class="visually-hidden" role="status" aria-live="polite" id="portfolio-filter-status"></p>
+  </section>
+
+  <section class="portfolio-grid wrap">
+    {projects.map((project) => (
+      <div
+        class="portfolio-grid__item fade-up"
+        data-status={project.data.status.toLowerCase().replace(/\s+/g, '-')}
+      >
+        <ProjectCard project={project} imageWidth={800} imageHeight={450} />
+      </div>
+    ))}
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    background: var(--color-ink);
+    color: var(--color-text-on-dark);
+    padding-block: calc(84px + clamp(40px, 7vw, 88px)) clamp(48px, 7vw, 88px);
+  }
+
+  .page-header h1 {
+    color: var(--color-text-on-dark);
+  }
+
+  .page-header__intro {
+    max-width: var(--max-width-text);
+    margin-top: 20px;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-text-on-dark-muted);
+  }
+
+  .portfolio-filter {
+    padding-block: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 40px);
+  }
+
+  .portfolio-filter__group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .portfolio-filter__btn {
+    padding: 10px 22px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .portfolio-filter__btn:hover {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+
+  .portfolio-filter__btn[aria-pressed='true'] {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-text-on-dark);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portfolio-filter__btn {
+      transition: none;
+    }
+  }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(28px, 3vw, 48px) clamp(24px, 3vw, 40px);
+    padding-block: 0 var(--space-section);
+  }
+
+  .portfolio-grid__item[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    .portfolio-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 620px) {
+    .portfolio-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.portfolio-filter__btn');
+  const items = document.querySelectorAll<HTMLElement>('.portfolio-grid__item');
+  const status = document.getElementById('portfolio-filter-status');
+
+  function applyFilter(filter: string) {
+    let visibleCount = 0;
+    items.forEach((item) => {
+      const match = filter === 'all' || item.dataset.status === filter;
+      item.hidden = !match;
+      if (match) visibleCount += 1;
+    });
+    if (status) {
+      status.textContent = `Showing ${visibleCount} of ${items.length} projects`;
+    }
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      applyFilter(btn.dataset.filter ?? 'all');
+    });
+  });
+
+  applyFilter('all');
+</script>
