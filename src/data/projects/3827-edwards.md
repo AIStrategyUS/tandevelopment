@@ -2,7 +2,7 @@
 name: "3827 Edwards"
 slug: "3827-edwards"
 neighborhood: "Inglewood"
-sqft: 2400
+sqft: 2600
 beds: 4
 baths: 4.5
 year: 2027
