@@ -1,8 +1,17 @@
 <svg viewBox="20 4 220 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tan Development monogram">
+  <!-- chimney, sits behind the roofline on the right slope -->
+  <rect x="152" y="32" width="16" height="56" fill="currentColor" />
+
   <!-- roofline: monoline gable, two angled strokes meeting at a peak -->
   <path d="M54,100 L54,84 L128,24 L202,84 L202,100"
         fill="none" stroke="currentColor" stroke-width="9"
         stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- window: 2x2 pane grid inside the gable -->
+  <rect x="111" y="45" width="14" height="14" fill="currentColor" />
+  <rect x="131" y="45" width="14" height="14" fill="currentColor" />
+  <rect x="111" y="65" width="14" height="14" fill="currentColor" />
+  <rect x="131" y="65" width="14" height="14" fill="currentColor" />
 
   <!-- T: stem centered-left, crossbar with flared serif ends -->
   <rect x="56" y="100" width="78" height="16" fill="currentColor" />
