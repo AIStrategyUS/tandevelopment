@@ -1,0 +1,594 @@
+---
+// Individual project page: hero, spec strip, narrative body, photo gallery
+// with a keyboard-navigable lightbox, an "available" listing block, and
+// previous/next links that cycle through the collection in the same stable
+// order as the portfolio index.
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects')).sort(
+    (a, b) =>
+      (a.data.order ?? 999) - (b.data.order ?? 999) ||
+      a.data.name.localeCompare(b.data.name)
+  );
+
+  return projects.map((project, index) => {
+    const prev = projects[(index - 1 + projects.length) % projects.length];
+    const next = projects[(index + 1) % projects.length];
+    return {
+      params: { slug: project.data.slug },
+      props: { project, prevProject: prev.data, nextProject: next.data },
+    };
+  });
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  prevProject: CollectionEntry<'projects'>['data'];
+  nextProject: CollectionEntry<'projects'>['data'];
+}
+
+const { project, prevProject, nextProject } = Astro.props as Props;
+const { data } = project;
+const { Content } = await render(project);
+
+// Placeholder filenames encode their intended aspect ratio, e.g.
+// "hero-16x9.svg" or "gallery-3-3x4.svg". Derive explicit width/height from
+// that so every <img> gets dimensions that actually match its image instead
+// of a guessed default.
+function aspectDims(src: string, baseWidth: number) {
+  const match = src.match(/-(\d+)x(\d+)\.\w+$/);
+  if (!match) return { width: baseWidth, height: Math.round((baseWidth * 3) / 4) };
+  const [, w, h] = match;
+  return { width: baseWidth, height: Math.round((baseWidth * Number(h)) / Number(w)) };
+}
+
+const heroDims = aspectDims(data.heroImage, 1600);
+const galleryDims = data.gallery.map((img) => aspectDims(img.src, 800));
+---
+
+<Layout
+  title={`${data.name} | Tan Development`}
+  description={data.description}
+  canonicalPath={`/portfolio/${data.slug}/`}
+  ogImage={data.heroImage}
+>
+  <section class="project-hero">
+    <img
+      src={data.heroImage}
+      alt={data.heroImageAlt}
+      width={heroDims.width}
+      height={heroDims.height}
+      loading="eager"
+      class="project-hero__image"
+    />
+  </section>
+
+  <section class="project-intro wrap">
+    <h1 class="fade-up">{data.name}</h1>
+    <p class="project-intro__neighborhood fade-up">{data.neighborhood}</p>
+
+    <dl class="project-specs fade-up">
+      <div class="project-specs__item">
+        <dt>Sq Ft</dt>
+        <dd>{data.sqft.toLocaleString()}</dd>
+      </div>
+      <div class="project-specs__item">
+        <dt>Beds</dt>
+        <dd>{data.beds}</dd>
+      </div>
+      <div class="project-specs__item">
+        <dt>Baths</dt>
+        <dd>{data.baths}</dd>
+      </div>
+      <div class="project-specs__item">
+        <dt>Year</dt>
+        <dd>{data.year}</dd>
+      </div>
+      <div class="project-specs__item">
+        <dt>Status</dt>
+        <dd>{data.status}</dd>
+      </div>
+    </dl>
+
+    <div class="project-narrative fade-up">
+      <Content />
+    </div>
+  </section>
+
+  {data.gallery.length > 0 && (
+    <section class="project-gallery wrap fade-up" aria-label={`${data.name} photo gallery`}>
+      <h2>Gallery</h2>
+      {data.status === 'Under Construction' && (
+        <p class="project-gallery__note">Renderings shown. Finishes and layout may change before completion.</p>
+      )}
+      <div class="project-gallery__grid">
+        {data.gallery.map((img, i) => (
+          <button
+            type="button"
+            class="project-gallery__item"
+            aria-label={`View larger image: ${img.alt}`}
+          >
+            <img
+              src={img.src}
+              alt={img.alt}
+              width={galleryDims[i].width}
+              height={galleryDims[i].height}
+              loading="lazy"
+            />
+          </button>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {data.status === 'Available' && (
+    <section class="project-listing wrap fade-up">
+      <div class="project-listing__card">
+        <h2>Listed with Carletello &amp; Co.</h2>
+        <p>Tony Carletello, Principal Agent</p>
+        <p><a href="tel:+16154057422" class="project-listing__phone">(615) 405-7422</a></p>
+        <a href="https://carletelloandco.com" target="_blank" rel="noopener" class="btn-outline">
+          Visit Carletello &amp; Co.
+        </a>
+      </div>
+    </section>
+  )}
+
+  <nav class="project-adjacent wrap fade-up" aria-label="More projects">
+    <a href={`/portfolio/${prevProject.slug}/`} class="project-adjacent__link project-adjacent__link--prev">
+      <span class="project-adjacent__label">Previous</span>
+      <span class="project-adjacent__name">{prevProject.name}</span>
+    </a>
+    <a href="/portfolio/" class="project-adjacent__all">All Projects</a>
+    <a href={`/portfolio/${nextProject.slug}/`} class="project-adjacent__link project-adjacent__link--next">
+      <span class="project-adjacent__label">Next</span>
+      <span class="project-adjacent__name">{nextProject.name}</span>
+    </a>
+  </nav>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox__backdrop" data-lightbox-close></div>
+    <div class="lightbox__dialog" role="dialog" aria-modal="true" aria-label={`${data.name} photo viewer`}>
+      <button type="button" class="lightbox__close" id="lightbox-close" aria-label="Close photo viewer">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <button type="button" class="lightbox__prev" id="lightbox-prev" aria-label="Previous photo">
+        <span aria-hidden="true">&larr;</span>
+      </button>
+      <img src="" alt="" class="lightbox__image" id="lightbox-image" />
+      <button type="button" class="lightbox__next" id="lightbox-next" aria-label="Next photo">
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+      <p class="lightbox__caption" id="lightbox-caption"></p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .project-hero {
+    position: relative;
+  }
+
+  /* Nav sits transparent over this hero until the visitor scrolls past
+     40px (see Nav.astro); this gradient keeps its light-on-dark text
+     legible against the hero image regardless of the image's own tone. */
+  .project-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 160px;
+    background: linear-gradient(to bottom, rgba(21, 17, 12, 0.55), transparent);
+    pointer-events: none;
+  }
+
+  .project-hero__image {
+    width: 100%;
+    height: auto;
+    max-height: 88vh;
+    object-fit: cover;
+  }
+
+  .project-intro {
+    padding-block: clamp(40px, 6vw, 72px) clamp(48px, 7vw, 96px);
+  }
+
+  .project-intro__neighborhood {
+    margin-top: 10px;
+    font-size: 1.0625rem;
+    color: var(--color-text-muted);
+  }
+
+  .project-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(24px, 4vw, 56px);
+    margin-top: 32px;
+    padding-block: 26px;
+    border-block: 1px solid var(--color-border);
+  }
+
+  .project-specs__item dt {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+  }
+
+  .project-specs__item dd {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    color: var(--color-ink);
+  }
+
+  .project-narrative {
+    max-width: var(--max-width-text);
+    margin-top: 36px;
+  }
+
+  .project-narrative :global(p) {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+  }
+
+  .project-gallery {
+    padding-block: 0 var(--space-section);
+  }
+
+  .project-gallery h2 {
+    margin-bottom: 8px;
+  }
+
+  .project-gallery__note {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 28px;
+  }
+
+  .project-gallery__grid {
+    columns: 3 260px;
+    column-gap: 20px;
+  }
+
+  .project-gallery__item {
+    display: block;
+    width: 100%;
+    break-inside: avoid;
+    margin-bottom: 20px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .project-gallery__item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .project-gallery__item:hover img,
+  .project-gallery__item:focus-visible img {
+    transform: scale(1.03);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-gallery__item img {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .project-gallery__grid {
+      columns: 1;
+    }
+  }
+
+  .project-listing {
+    padding-block: 0 var(--space-section);
+  }
+
+  .project-listing__card {
+    max-width: var(--max-width-text);
+    padding: clamp(28px, 4vw, 40px);
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .project-listing__card h2 {
+    margin-bottom: 2px;
+  }
+
+  .project-listing__card p {
+    color: var(--color-text-muted);
+  }
+
+  .project-listing__phone {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    color: var(--color-ink);
+  }
+
+  .project-listing__card .btn-outline {
+    margin-top: 10px;
+  }
+
+  .project-adjacent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: clamp(32px, 5vw, 56px);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .project-adjacent__link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 40%;
+  }
+
+  .project-adjacent__link--next {
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  .project-adjacent__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .project-adjacent__name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--color-ink);
+    transition: color 0.2s ease;
+  }
+
+  .project-adjacent__link:hover .project-adjacent__name {
+    color: var(--color-accent-dark);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-adjacent__name {
+      transition: none;
+    }
+  }
+
+  .project-adjacent__all {
+    flex-shrink: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 620px) {
+    .project-adjacent {
+      flex-wrap: wrap;
+    }
+
+    .project-adjacent__link {
+      max-width: 45%;
+    }
+
+    .project-adjacent__all {
+      order: 3;
+      width: 100%;
+      text-align: center;
+      margin-top: 12px;
+    }
+  }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox[hidden] {
+    display: none;
+  }
+
+  .lightbox__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(21, 17, 12, 0.92);
+  }
+
+  .lightbox__dialog {
+    position: relative;
+    z-index: 1;
+    max-width: min(92vw, 1100px);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+  }
+
+  .lightbox__image {
+    max-width: 100%;
+    max-height: 72vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .lightbox__caption {
+    color: var(--color-text-on-dark-muted);
+    font-size: 0.875rem;
+    text-align: center;
+    max-width: 60ch;
+  }
+
+  .lightbox__close,
+  .lightbox__prev,
+  .lightbox__next {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-on-dark);
+    z-index: 2;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+  }
+
+  .lightbox__close:hover,
+  .lightbox__prev:hover,
+  .lightbox__next:hover {
+    background: rgba(243, 237, 224, 0.14);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox__close,
+    .lightbox__prev,
+    .lightbox__next {
+      transition: none;
+    }
+  }
+
+  .lightbox__close {
+    top: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    font-size: 1.75rem;
+  }
+
+  .lightbox__prev,
+  .lightbox__next {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    font-size: 1.375rem;
+  }
+
+  .lightbox__prev {
+    left: 20px;
+  }
+
+  .lightbox__next {
+    right: 20px;
+  }
+</style>
+
+<script>
+  const items = Array.from(document.querySelectorAll<HTMLButtonElement>('.project-gallery__item'));
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
+  const lightboxCaption = document.getElementById('lightbox-caption');
+  const closeBtn = document.getElementById('lightbox-close') as HTMLButtonElement | null;
+  const prevBtn = document.getElementById('lightbox-prev') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('lightbox-next') as HTMLButtonElement | null;
+  const backdrop = lightbox?.querySelector<HTMLElement>('[data-lightbox-close]');
+
+  let currentIndex = 0;
+  let lastTrigger: HTMLElement | null = null;
+
+  const focusable = [closeBtn, prevBtn, nextBtn].filter((el): el is HTMLButtonElement => Boolean(el));
+
+  function updateImage() {
+    const item = items[currentIndex];
+    const img = item?.querySelector('img');
+    if (!img || !lightboxImage) return;
+    lightboxImage.src = img.src;
+    lightboxImage.alt = img.alt;
+    if (lightboxCaption) lightboxCaption.textContent = img.alt;
+  }
+
+  function openLightbox(index: number, trigger: HTMLElement) {
+    if (!lightbox) return;
+    currentIndex = index;
+    lastTrigger = trigger;
+    updateImage();
+    lightbox.hidden = false;
+    document.body.classList.add('lightbox-open');
+    document.addEventListener('keydown', onKeydown);
+    closeBtn?.focus();
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.hidden = true;
+    document.body.classList.remove('lightbox-open');
+    document.removeEventListener('keydown', onKeydown);
+    lastTrigger?.focus();
+  }
+
+  function showPrev() {
+    if (items.length === 0) return;
+    currentIndex = (currentIndex - 1 + items.length) % items.length;
+    updateImage();
+  }
+
+  function showNext() {
+    if (items.length === 0) return;
+    currentIndex = (currentIndex + 1) % items.length;
+    updateImage();
+  }
+
+  function onKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeLightbox();
+      return;
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      showPrev();
+      return;
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      showNext();
+      return;
+    }
+    if (e.key === 'Tab' && focusable.length > 0) {
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  items.forEach((item, index) => {
+    item.addEventListener('click', () => openLightbox(index, item));
+  });
+
+  closeBtn?.addEventListener('click', closeLightbox);
+  backdrop?.addEventListener('click', closeLightbox);
+  prevBtn?.addEventListener('click', showPrev);
+  nextBtn?.addEventListener('click', showNext);
+</script>
+
+<style is:global>
+  body.lightbox-open {
+    overflow: hidden;
+  }
+</style>

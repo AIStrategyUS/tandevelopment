@@ -1,0 +1,475 @@
+---
+// Home page. Pulls six projects from the "projects" content collection and
+// features four of them (mixed status) in an asymmetric editorial grid.
+// See CLAUDE.md / the build brief for the design system contract this page
+// must follow (Layout props, ProjectCard props, token usage, etc).
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+
+const allProjects = await getCollection('projects');
+
+function findProject(slug: string) {
+  const project = allProjects.find((entry) => entry.data.slug === slug);
+  if (!project) {
+    throw new Error(`index.astro: expected a project with slug "${slug}" in the projects collection.`);
+  }
+  return project;
+}
+
+// One large card plus three smaller ones, mixing statuses and neighborhoods
+// rather than pulling the first four entries in collection order.
+const featuredLarge = findProject('3819-edwards');
+const featuredA = findProject('3827-edwards');
+const featuredB = findProject('3829-edwards');
+
+const processSteps = [
+  {
+    number: '01',
+    title: 'Land & Design',
+    line: 'We help find the right lot and shape the plan around it.',
+  },
+  {
+    number: '02',
+    title: 'Pre-Construction',
+    line: 'Permitting, budget, and material selections, settled before we break ground.',
+  },
+  {
+    number: '03',
+    title: 'Build',
+    line: 'Framing through finish work, built the way we would build our own home.',
+  },
+  {
+    number: '04',
+    title: 'Delivery',
+    line: 'A final walkthrough, then the keys are yours.',
+  },
+];
+
+const instagramUrl = 'https://www.instagram.com/sebastian_tan01/';
+const availableHomesUrl = 'https://www.carletelloandco.com/properties/sale';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HomeAndConstructionBusiness',
+  name: 'Tan Development',
+  url: 'https://tandevelopment.com/',
+  telephone: '574-870-6947',
+  areaServed: 'Nashville, TN',
+  sameAs: [instagramUrl],
+};
+---
+
+<Layout
+  title="Tan Development | Custom Home Builder in Nashville, TN"
+  description="Tan Development builds custom homes in Nashville neighborhoods. See our recent work, how we build, and homes currently available with our partner Carletello & Co."
+  canonicalPath="/"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <!-- ==================================================================
+       1. Hero
+  =================================================================== -->
+  <section class="hero">
+    <img
+      src="/images/projects/3819-edwards/gallery-1-1536x1152.jpg"
+      alt="Finished Tan Development home in Inglewood at dusk, brick and white board-and-batten siding lit from within"
+      width="1536"
+      height="1152"
+      class="hero__image"
+    />
+    <div class="hero__scrim" aria-hidden="true"></div>
+
+    <div class="hero__content wrap">
+      <h1 class="hero__headline">Custom homes, built to last in Nashville.</h1>
+      <p class="hero__subline">
+        We build in Nashville neighborhoods, from first sketch to final walkthrough, with an eye for craft in
+        every room.
+      </p>
+      <a href="/portfolio/" class="hero__cta">View Our Portfolio</a>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       2. Featured work
+  =================================================================== -->
+  <section class="section featured">
+    <div class="wrap">
+      <p class="kicker fade-up">Featured Work</p>
+      <h2 class="fade-up">A Look at Recent Builds</h2>
+
+      <div class="featured-grid">
+        <div class="featured-grid__item featured-grid__item--large fade-up">
+          <ProjectCard project={featuredLarge} imageWidth={1600} imageHeight={900} />
+        </div>
+        <div class="featured-grid__item featured-grid__item--a fade-up">
+          <ProjectCard project={featuredA} imageWidth={1600} imageHeight={900} />
+        </div>
+        <div class="featured-grid__item featured-grid__item--b fade-up">
+          <ProjectCard project={featuredB} imageWidth={1600} imageHeight={900} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       3. Positioning statement
+  =================================================================== -->
+  <section class="section positioning">
+    <div class="text-wrap fade-up">
+      <p class="positioning__lede">
+        We build for homeowners who want a house that works as hard as they do, with room to grow and details
+        that hold up over time. Every home gets the same attention, solid materials, tight joinery, and finish
+        work we would want in our own house. Sebastian Tan leads each project from the first sketch through the
+        final walkthrough, so nothing gets lost between the plan and the build.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       4. Process teaser
+  =================================================================== -->
+  <section class="section process">
+    <div class="wrap">
+      <p class="kicker fade-up">Our Process</p>
+      <h2 class="fade-up">How We Build</h2>
+
+      <ol class="process-band fade-up">
+        {processSteps.map((step) => (
+          <li class="process-step">
+            <a href="/process/" class="process-step__link">
+              <span class="process-step__number">{step.number}</span>
+              <span class="process-step__title">{step.title}</span>
+              <span class="process-step__line">{step.line}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       5. Available Homes band
+  =================================================================== -->
+  <section class="section available">
+    <div class="wrap available__inner fade-up">
+      <h2 class="available__heading">Available Homes</h2>
+      <p class="available__text">
+        Homes currently available are listed with our partner Carletello & Co.
+      </p>
+      <a
+        href={availableHomesUrl}
+        target="_blank"
+        rel="noopener"
+        class="available__cta"
+      >
+        View Available Homes
+      </a>
+      <p class="available__note">Opens carletelloandco.com in a new tab.</p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       6. Closing CTA
+  =================================================================== -->
+  <section class="section closing">
+    <div class="text-wrap closing__inner fade-up">
+      <h2>Ready to build?</h2>
+      <p>Tell us about your lot and what you have in mind, and we will follow up to set up a time to talk.</p>
+      <a href="/contact/" class="btn-primary">Get in Touch</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding-block: var(--space-section);
+  }
+
+  .kicker {
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 14px;
+  }
+
+  .text-wrap {
+    max-width: var(--max-width-text);
+    margin-inline: auto;
+    padding-inline: clamp(20px, 4vw, 60px);
+  }
+
+  /* ==================================================================
+     1. Hero
+  =================================================================== */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .hero__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Functional legibility scrim, not decorative: darkens the top so the
+     fixed, transparent Nav stays readable, and the bottom so the hero
+     copy stays readable, while the middle of the photo stays clear. */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(21, 17, 12, 0.55) 0%,
+      rgba(21, 17, 12, 0) 24%,
+      rgba(21, 17, 12, 0) 55%,
+      rgba(21, 17, 12, 0.68) 100%
+    );
+  }
+
+  .hero__content {
+    position: relative;
+    padding-bottom: clamp(56px, 9vw, 110px);
+    max-width: 640px;
+  }
+
+  .hero__headline {
+    color: var(--color-text-on-dark);
+  }
+
+  .hero__subline {
+    margin-top: 20px;
+    max-width: 46ch;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--color-text-on-dark-muted);
+  }
+
+  .hero__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 32px;
+    padding: 15px 34px;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-on-dark);
+    border: 1px solid var(--color-text-on-dark);
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  .hero__cta:hover {
+    background: var(--color-text-on-dark);
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__cta {
+      transition: none;
+    }
+  }
+
+  /* ==================================================================
+     2. Featured work
+  =================================================================== */
+  .featured h2 {
+    max-width: 20ch;
+  }
+
+  .featured-grid {
+    margin-top: clamp(32px, 5vw, 56px);
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: clamp(24px, 3vw, 40px);
+  }
+
+  .featured-grid__item--large {
+    grid-column: span 4;
+  }
+
+  .featured-grid__item--a {
+    grid-column: span 2;
+  }
+
+  .featured-grid__item--b {
+    grid-column: span 6;
+  }
+
+  @media (max-width: 860px) {
+    .featured-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .featured-grid__item--large,
+    .featured-grid__item--a,
+    .featured-grid__item--b {
+      grid-column: auto;
+    }
+  }
+
+  /* ==================================================================
+     3. Positioning statement
+  =================================================================== */
+  .positioning {
+    background: var(--color-bg-alt);
+  }
+
+  .positioning__lede {
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+    line-height: 1.5;
+    color: var(--color-ink);
+    text-align: center;
+  }
+
+  /* ==================================================================
+     4. Process teaser
+  =================================================================== */
+  .process-band {
+    margin-top: clamp(32px, 5vw, 56px);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .process-step {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .process-step + .process-step {
+    border-left: 1px solid var(--color-border);
+  }
+
+  .process-step__link {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    padding: 28px clamp(16px, 2.5vw, 28px) 0;
+  }
+
+  .process-step__number {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--color-accent);
+  }
+
+  .process-step__title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--color-ink);
+    transition: color 0.2s ease;
+  }
+
+  .process-step__link:hover .process-step__title,
+  .process-step__link:focus-visible .process-step__title {
+    color: var(--color-accent-dark);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .process-step__title {
+      transition: none;
+    }
+  }
+
+  .process-step__line {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 720px) {
+    .process-band {
+      grid-template-columns: 1fr;
+    }
+
+    .process-step + .process-step {
+      border-left: none;
+    }
+  }
+
+  /* ==================================================================
+     5. Available Homes band
+  =================================================================== */
+  .available {
+    background: var(--color-ink);
+  }
+
+  .available__inner {
+    max-width: var(--max-width-text);
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .available__heading {
+    color: var(--color-text-on-dark);
+  }
+
+  .available__text {
+    margin-top: 18px;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--color-text-on-dark-muted);
+  }
+
+  .available__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 28px;
+    padding: 15px 34px;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--color-text-on-dark);
+    color: var(--color-ink);
+    border: 1px solid var(--color-text-on-dark);
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  }
+
+  .available__cta:hover {
+    background: transparent;
+    color: var(--color-text-on-dark);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .available__cta {
+      transition: none;
+    }
+  }
+
+  .available__note {
+    margin-top: 14px;
+    font-size: 0.8125rem;
+    color: var(--color-text-on-dark-muted);
+  }
+
+  /* ==================================================================
+     6. Closing CTA
+  =================================================================== */
+  .closing__inner {
+    text-align: center;
+  }
+
+  .closing__inner p {
+    margin-top: 18px;
+    font-size: 1.0625rem;
+  }
+
+  .closing__inner .btn-primary {
+    margin-top: 28px;
+  }
+</style>

@@ -1,0 +1,376 @@
+---
+// Contact page. Two columns below a short dark header band: contact details
+// on the left, the lead form (with Cloudflare Turnstile) on the right.
+// Submission is vanilla JS, posting straight to the existing Worker, so the
+// legacy site's five field names (name, phone, email, message,
+// turnstileToken) stay untouched; projectType is the one new field.
+import Layout from '../../layouts/Layout.astro';
+
+const phoneDisplay = '574-870-6947';
+const phoneHref = 'tel:5748706947';
+const instagramUrl = 'https://www.instagram.com/sebastian_tan01/';
+---
+
+<Layout
+  title="Contact | Tan Development"
+  description="Reach Tan Development about a custom build, an available home, or land you already own in Nashville. Call, message us on Instagram, or send a note below."
+  canonicalPath="/contact/"
+  includeTurnstile={true}
+>
+  <section class="page-header">
+    <div class="wrap page-header__inner">
+      <h1 class="fade-up">Get in Touch</h1>
+      <p class="fade-up">
+        Tell us about your project, your land, or the home you are looking for.
+        We read every message and get back to you soon.
+      </p>
+    </div>
+  </section>
+
+  <section class="contact-section">
+    <div class="wrap contact-grid">
+      <div class="contact-details-col fade-up">
+        <h2>Contact Details</h2>
+        <dl class="contact-details">
+          <div class="contact-details__row">
+            <dt>Phone</dt>
+            <dd>
+              <a href={phoneHref} class="contact-details__link">{phoneDisplay}</a>
+            </dd>
+          </div>
+          <div class="contact-details__row">
+            <dt>Location</dt>
+            <dd>Nashville, Tennessee</dd>
+          </div>
+          <div class="contact-details__row">
+            <dt>Hours</dt>
+            <dd>By appointment</dd>
+          </div>
+          <div class="contact-details__row">
+            <dt>Instagram</dt>
+            <dd>
+              <a href={instagramUrl} target="_blank" rel="noopener" class="contact-details__link">
+                @sebastian_tan01
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="contact-form-col fade-up">
+        <h2>Send a Message</h2>
+
+        <form id="contact-form" class="contact-form" novalidate>
+          <div class="form-row">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" autocomplete="name" required />
+          </div>
+
+          <div class="form-row">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" required />
+          </div>
+
+          <div class="form-row">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" autocomplete="email" required />
+          </div>
+
+          <div class="form-row">
+            <label for="projectType">I'm interested in</label>
+            <select id="projectType" name="projectType">
+              <option value="Custom Build">Custom Build</option>
+              <option value="Available Homes">Available Homes</option>
+              <option value="Land I Own">Land I Own</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+          </div>
+
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAACjXb5OVdkjNRX0V" data-theme="light"></div>
+
+          <p id="contact-form-status" class="contact-form__status" role="alert" aria-live="assertive" hidden></p>
+
+          <button type="submit" class="btn-primary contact-form__submit" id="contact-form-submit">
+            <span id="contact-form-submit-label">Send Message</span>
+          </button>
+        </form>
+
+        <div class="contact-success" id="contact-success" role="status" aria-live="polite" hidden>
+          <h2>Message Sent</h2>
+          <p>
+            Thanks for reaching out. We will get back to you soon. If it is urgent, call us
+            directly at <a href={phoneHref} class="contact-success__phone">{phoneDisplay}</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    background: var(--color-ink);
+    padding-block: clamp(150px, 22vw, 220px) clamp(56px, 8vw, 88px);
+  }
+
+  .page-header__inner {
+    max-width: var(--max-width-text);
+  }
+
+  .page-header h1 {
+    color: var(--color-text-on-dark);
+  }
+
+  .page-header p {
+    margin-top: 20px;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--color-text-on-dark-muted);
+  }
+
+  .contact-section {
+    padding-block: var(--space-section);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(48px, 6vw, 110px);
+    align-items: start;
+  }
+
+  @media (max-width: 880px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+      gap: 56px;
+    }
+  }
+
+  .contact-details-col h2,
+  .contact-form-col h2 {
+    font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.875rem);
+    margin-bottom: 28px;
+  }
+
+  .contact-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contact-details__row {
+    padding-block: 20px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .contact-details__row:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .contact-details dt {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+  }
+
+  .contact-details dd {
+    font-size: 1.125rem;
+    color: var(--color-ink);
+  }
+
+  .contact-details__link {
+    transition: color 0.2s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-details__link {
+      transition: none;
+    }
+  }
+
+  .contact-details__link:hover,
+  .contact-details__link:focus-visible {
+    color: var(--color-accent);
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-row label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    transition: border-color 0.2s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      transition: none;
+    }
+  }
+
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus {
+    border-color: var(--color-accent);
+  }
+
+  .form-row textarea {
+    resize: vertical;
+    min-height: 140px;
+  }
+
+  .cf-turnstile {
+    margin-block: 2px;
+  }
+
+  .contact-form__status {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #8a3324;
+  }
+
+  .contact-form__status a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  .contact-form__submit {
+    align-self: flex-start;
+  }
+
+  .contact-form__submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .contact-success {
+    max-width: var(--max-width-text);
+  }
+
+  .contact-success h2 {
+    font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.875rem);
+    margin-bottom: 16px;
+  }
+
+  .contact-success p {
+    font-size: 1rem;
+  }
+
+  .contact-success__phone {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+</style>
+
+<script>
+  const WORKER_URL = 'https://solitary-violet-297c.aistrategyus.workers.dev';
+
+  const form = document.getElementById('contact-form');
+  const successEl = document.getElementById('contact-success');
+  const statusEl = document.getElementById('contact-form-status');
+  const submitBtn = document.getElementById('contact-form-submit');
+  const submitLabel = document.getElementById('contact-form-submit-label');
+
+  function setStatus(message) {
+    if (!statusEl) return;
+    if (!message) {
+      statusEl.hidden = true;
+      statusEl.textContent = '';
+      return;
+    }
+    statusEl.textContent = message;
+    statusEl.hidden = false;
+  }
+
+  function setSending(isSending) {
+    if (submitBtn instanceof HTMLButtonElement) {
+      submitBtn.disabled = isSending;
+    }
+    if (submitLabel) {
+      submitLabel.textContent = isSending ? 'Sending...' : 'Send Message';
+    }
+  }
+
+  if (form instanceof HTMLFormElement) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus('');
+
+      const tokenInput = form.querySelector('input[name="cf-turnstile-response"]');
+      const turnstileToken = tokenInput instanceof HTMLInputElement ? tokenInput.value : '';
+
+      if (!turnstileToken) {
+        setStatus('Please complete the verification challenge above before sending your message.');
+        return;
+      }
+
+      const formData = new FormData(form);
+      const payload = {
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        email: formData.get('email'),
+        message: formData.get('message'),
+        turnstileToken,
+        projectType: formData.get('projectType'),
+      };
+
+      setSending(true);
+
+      try {
+        const response = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json().catch(() => null);
+
+        if (response.ok && data && data.result === 'success') {
+          form.hidden = true;
+          if (successEl) successEl.hidden = false;
+          return;
+        }
+
+        throw new Error('Unexpected response from contact worker');
+      } catch (err) {
+        setStatus(
+          'Something went wrong sending your message. Call us directly at 574-870-6947 and we will pick up.'
+        );
+        const w = window;
+        if (w.turnstile && typeof w.turnstile.reset === 'function') {
+          w.turnstile.reset();
+        }
+      } finally {
+        setSending(false);
+      }
+    });
+  }
+</script>

@@ -1,0 +1,374 @@
+---
+// /about/ - Sebastian Tan, Founder & Principal of Tan Development.
+// Follows the shared design system: Layout wraps the page, tokens come
+// from global.css, and .fade-up opts elements into the shared scroll
+// reveal (Layout calls reveal.js's init() once per page automatically).
+import Layout from '../../layouts/Layout.astro';
+
+const carletelloUrl = 'https://carletelloandco.com/';
+const carletelloPhoneDisplay = '(615) 405-7422';
+const carletelloPhoneHref = 'tel:+16154057422';
+const instagramUrl = 'https://www.instagram.com/sebastian_tan01/';
+
+const expertise = [
+  {
+    title: 'Site & Lot Evaluation',
+    body: 'Before we commit to a design, we walk the lot ourselves: grade, drainage, sun orientation, tree cover, and what the neighborhood will and will not allow.',
+  },
+  {
+    title: 'Design Collaboration',
+    body: 'We work directly with the architect through every draft, shaping a plan around the lot and how the client actually lives, not a template.',
+  },
+  {
+    title: 'Permitting & Code Compliance',
+    body: 'Nashville permitting, zoning setbacks, and inspections are part of the job. We handle the paperwork so it never holds up the build.',
+  },
+  {
+    title: 'Budget & Schedule Management',
+    body: 'Specifications get priced and locked before we break ground, and the schedule gets updated as decisions are made, so there are no surprises mid-build.',
+  },
+  {
+    title: 'Craftsmanship & Trade Coordination',
+    body: 'Framing, mechanicals, and finish work all run through the same standard. We are on site at every key milestone, not just at the walkthroughs.',
+  },
+  {
+    title: 'Client Communication',
+    body: 'You hear from us at every stage change, in plain language, with a point of contact who answers the phone.',
+  },
+];
+---
+
+<Layout
+  title="About | Tan Development"
+  description="Meet Sebastian Tan, Founder and Principal of Tan Development, a Nashville custom home builder."
+  canonicalPath="/about/"
+>
+  <section class="page-hero">
+    <div class="wrap page-hero__inner">
+      <p class="page-hero__eyebrow fade-up">About</p>
+      <h1 class="page-hero__title fade-up">Sebastian Tan</h1>
+      <p class="page-hero__subhead fade-up">Founder & Principal, Tan Development</p>
+    </div>
+  </section>
+
+  <section class="about-intro">
+    <div class="wrap about-intro__grid">
+      <div class="about-intro__portrait fade-up">
+        <img
+          src="/images/about/sebastian-tan-1145x1374.jpg"
+          alt="Sebastian Tan, Founder and Principal of Tan Development, in the company office"
+          width="1145"
+          height="1374"
+          loading="lazy"
+        />
+      </div>
+
+      <div class="about-intro__text">
+        <p class="fade-up">
+          Sebastian Tan founded Tan Development to build homes the way he believes homes should be built: with
+          attention to the details that do not show up on a spec sheet. He stays close to the job site through
+          every project, working alongside framers, trim carpenters, and tile setters, because the best way to
+          understand a build is to watch it happen.
+        </p>
+        <p class="fade-up">
+          Nashville is where Sebastian chose to build. Between the older neighborhoods, the mix of craftsman
+          bungalows and new construction, and a city still figuring out what it wants to look like next, there
+          is real room to build something that fits its block instead of just filling a lot.
+        </p>
+        <p class="fade-up">
+          What matters to Sebastian is simple: square walls, tight joints, doors that do not stick, and finishes
+          that hold up after move-in. He believes a good client experience starts with a builder who answers the
+          phone, tells you the truth about the schedule, and finishes what he starts.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pull-quote-section">
+    <div class="wrap">
+      <blockquote class="pull-quote fade-up">
+        <p>&ldquo;I want someone to walk through one of our homes and just feel that it was built right.&rdquo;</p>
+        <cite class="pull-quote__attribution">Sebastian Tan</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="expertise">
+    <div class="wrap">
+      <p class="kicker fade-up">What We Do Best</p>
+      <h2 class="fade-up">Areas of Expertise</h2>
+
+      <div class="expertise-grid">
+        {expertise.map((item) => (
+          <div class="expertise-item fade-up">
+            <h3 class="expertise-item__title">{item.title}</h3>
+            <p class="expertise-item__body">{item.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="partners">
+    <div class="wrap partners__grid">
+      <div class="partners__block fade-up">
+        <h2 class="partners__heading">Our Partners</h2>
+        <p class="partners__body">
+          Every Tan Development home for sale is listed and shown by Carletello &amp; Co. Tony Carletello,
+          Principal Agent, and his team handle showings, offers, and closing, so we can stay focused on the
+          build.
+        </p>
+        <div class="partners__meta">
+          <a href={carletelloUrl} target="_blank" rel="noopener" class="partners__link">Carletello &amp; Co.</a>
+          <a href={carletelloPhoneHref} class="partners__link">{carletelloPhoneDisplay}</a>
+        </div>
+      </div>
+
+      <div class="partners__block fade-up">
+        <h2 class="partners__heading">Follow the Build</h2>
+        <p class="partners__body">
+          See more of our work in progress, from framing to final finishes, on Instagram.
+        </p>
+        <div class="partners__meta">
+          <a href={instagramUrl} target="_blank" rel="noopener" class="partners__link">@sebastian_tan01</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ---------------------------------------------------------------- */
+  /* Hero                                                              */
+  /* ---------------------------------------------------------------- */
+  .page-hero {
+    background: var(--color-ink);
+    color: var(--color-text-on-dark);
+  }
+
+  .page-hero__inner {
+    padding-top: clamp(160px, 22vw, 220px);
+    padding-bottom: clamp(56px, 8vw, 96px);
+  }
+
+  .page-hero__eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 18px;
+  }
+
+  .page-hero__title {
+    color: var(--color-text-on-dark);
+  }
+
+  .page-hero__subhead {
+    margin-top: 20px;
+    font-size: 1.0625rem;
+    color: var(--color-text-on-dark-muted);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Intro: portrait + bio                                             */
+  /* ---------------------------------------------------------------- */
+  .about-intro {
+    padding-block: var(--space-section);
+  }
+
+  .about-intro__grid {
+    display: grid;
+    grid-template-columns: minmax(240px, 360px) 1fr;
+    gap: clamp(32px, 6vw, 80px);
+    align-items: start;
+  }
+
+  .about-intro__portrait {
+    background: var(--color-bg-alt);
+    overflow: hidden;
+  }
+
+  .about-intro__portrait img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .about-intro__text {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    max-width: var(--max-width-text);
+  }
+
+  .about-intro__text p {
+    font-size: 1.0625rem;
+  }
+
+  @media (max-width: 860px) {
+    .about-intro__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .about-intro__portrait {
+      max-width: 360px;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Pull quote                                                        */
+  /* ---------------------------------------------------------------- */
+  .pull-quote-section {
+    background: var(--color-bg-alt);
+    padding-block: clamp(64px, 8vw, 112px);
+  }
+
+  .pull-quote {
+    max-width: 800px;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .pull-quote p {
+    font-family: var(--font-display);
+    font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.375rem);
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--color-ink);
+  }
+
+  .pull-quote__attribution {
+    display: block;
+    margin-top: 20px;
+    font-style: normal;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Areas of Expertise                                                */
+  /* ---------------------------------------------------------------- */
+  .kicker {
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 14px;
+  }
+
+  .expertise {
+    background: var(--color-ink);
+    color: var(--color-text-on-dark);
+    padding-block: var(--space-section);
+  }
+
+  .expertise h2 {
+    color: var(--color-text-on-dark);
+    max-width: 20ch;
+  }
+
+  .expertise-grid {
+    margin-top: clamp(32px, 5vw, 56px);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 3vw, 40px);
+  }
+
+  .expertise-item {
+    border-left: 2px solid var(--color-accent);
+    padding-left: 20px;
+  }
+
+  .expertise-item__title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--color-text-on-dark);
+    margin-bottom: 10px;
+  }
+
+  .expertise-item__body {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-text-on-dark-muted);
+  }
+
+  @media (max-width: 860px) {
+    .expertise-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .expertise-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Partners / Instagram                                              */
+  /* ---------------------------------------------------------------- */
+  .partners {
+    padding-block: var(--space-section);
+  }
+
+  .partners__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(32px, 5vw, 56px);
+  }
+
+  .partners__block {
+    padding: clamp(28px, 4vw, 40px);
+    background: var(--color-bg-alt);
+  }
+
+  .partners__heading {
+    margin-bottom: 14px;
+  }
+
+  .partners__body {
+    max-width: 42ch;
+  }
+
+  .partners__meta {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+  }
+
+  .partners__link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--color-accent-dark);
+    border-bottom: 1px solid var(--color-accent);
+    padding-bottom: 2px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .partners__link:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .partners__link {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .partners__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

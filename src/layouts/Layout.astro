@@ -1,0 +1,83 @@
+---
+// Shared page shell for every route. Import this in every page.astro file
+// and wrap the page's markup in it.
+//
+// Props contract (depended on verbatim by other pages/agents):
+//   title (string): becomes <title>, also used for og:title.
+//   description (string): <meta name="description">, also og:description.
+//   canonicalPath (string): site relative path with leading and trailing
+//     slash, e.g. "/portfolio/" or "/" for home. Resolved against
+//     astro.config.mjs's `site` to build the canonical URL and og:url.
+//   ogImage (string, optional): site relative path to an image, defaults
+//     to the dark logo mark PNG. Resolved the same way as canonicalPath.
+//   includeTurnstile (boolean, optional): when true, adds the Cloudflare
+//     Turnstile script tag to <head> (only on pages that need it, such as
+//     the contact page's form).
+//
+// Also: imports global.css (the only place that should), renders the
+// shared Nav and Footer around a <main><slot /></main>, and calls
+// reveal.js's init() once per page load so any element on any page can opt
+// into the fade-up scroll reveal just by adding the `fade-up` class. Pages
+// should not call init() themselves.
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  ogImage?: string;
+  includeTurnstile?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonicalPath,
+  ogImage = '/images/logo-mark-dark.png',
+  includeTurnstile = false,
+} = Astro.props;
+
+const canonicalURL = new URL(canonicalPath, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/png" href="/images/logo-mark-dark.png" />
+
+    {includeTurnstile && (
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    )}
+  </head>
+  <body>
+    <header>
+      <Nav />
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      import { init } from '../scripts/reveal.js';
+      init();
+    </script>
+  </body>
+</html>
